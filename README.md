@@ -104,3 +104,9 @@ GitHub: https://github.com/Wanbogang
 
 
 
+
+## Demo & Pitch Deck
+
+- 🎥 Demo video: https://youtu.be/rsHYp0HeCMs  
+- 🧾 Pitch deck (PDF): ./docs/GhostPay_PitchDeck.pdf
+
