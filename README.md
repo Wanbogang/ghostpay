@@ -1,121 +1,104 @@
-# GhostPay — Private P2P Payments (Stealth Addresses & Encrypted Memos)
+# 🕶️ GhostPay — Private P2P Payments (Stealth Addresses & Encrypted Memos)
 
-**Tagline:** A Cypherpunk prototype for private P2P payments — stealth addresses + end-to-end encrypted memos.
-
----
-
-## Summary
-GhostPay is a prototype demonstrating how to:
-- Derive a *one-time* (stealth) address using X25519 Diffie-Hellman,
-- Encrypt transaction memos using XSalsa20-Poly1305 (PyNaCl),
-- Allow the recipient to decrypt memos and derive a one-time private key to claim funds.
-
-Goal: build an MVP for the DAWN Black Box hackathon focusing on message privacy and recipient obfuscation. **Note:** on-chain amounts are still visible in this prototype.
+**GhostPay** is a cyberpunk-inspired prototype for private peer-to-peer payments, built with Python.  
+It demonstrates **stealth address derivation**, **end-to-end encrypted memos**, and **claimable transaction links** — designed to explore privacy concepts for next-gen payment rails.
 
 ---
 
-## Repository structure
+## 🧩 Key Features
+
+- 🔐 One-time **stealth address** generation using X25519 (Diffie-Hellman)
+- 📨 **Encrypted memos** secured with ChaCha20-Poly1305 (PyNaCl)
+- 🧾 **Claimable payment links** to simulate off-chain message passing
+- ⚙️ Modular cryptographic primitives — easy to integrate or extend
+- 🧠 Designed as a learning and research prototype (not production code)
+
+---
+
+## 🗂️ Repository Structure
 ghostpay/
+
 ├── src/
-│ ├── keygen.py
-│ ├── dh_shared.py
-│ ├── onetime_key.py
-│ ├── encrypt.py
-│ ├── sender_example.py
-│ ├── receiver_example.py
-│ └── auto_demo.py
+
+│ ├── keygen.py # Generate base + ephemeral key pairs
+
+│ ├── dh_shared.py # Compute shared secrets via X25519
+
+│ ├── encrypt.py # Encrypt/decrypt memos (ChaCha20-Poly1305)
+
+│ ├── onetime_key.py # Derive stealth address for each payment
+
+│ ├── sender_example.py # Example: sender encrypts & sends payment
+
+│ └── receiver_example.py # Example: receiver decrypts memo
+
+├── .gitignore
+
 ├── requirements.txt
-├── README.md
-└── venv/
+
+└── README.md
 
 ---
 
-## Requirements
-- Python 3.10+  
-- Virtualenv (recommended)  
-- (Optional for testnet) solana-cli & network access
+## ⚡ Quick Start
 
-Install dependencies:
+### 1. Clone the repository
+```bash
+git clone https://github.com/Wanbogang/ghostpay.git
+cd ghostpay
+```
+### 2. Create virtual environment
 ```bash
 python3 -m venv venv
-source venv/bin/activate   # Windows: venv\Scripts\activate
+source venv/bin/activate   # (Linux / macOS)
+# or
+venv\Scripts\activate      # (Windows)
+```
+### 3. Install dependencies
+```bash
 pip install -r requirements.txt
+```
+### 4. Run examples
+Sender encrypts and creates payment link
+```bash
+python src/sender_example.py
+```
 
-How to run (Local demo — recommended)
+Receiver decrypts and reads memo
+```bash
+python src/receiver_example.py
+```
 
-Activate virtualenv:
+# 🧠 How It Works
 
-source venv/bin/activate
+1. Key Generation — each participant (Alice & Bob) generates a base X25519 key pair.
+
+2. Stealth Address Derivation — Alice uses Bob’s public key and a fresh ephemeral key to derive a one-time address.
+
+3. Memo Encryption — Alice encrypts the transaction memo using the shared secret (Diffie-Hellman output).
+
+4. Claim Process — Bob scans for payments addressed to his derived keys and decrypts memos using his private base key.
+
+## 🧪 Cryptographic Primitives
+
+| Component      | Algorithm           | Library       |
+|----------------|---------------------|----------------|
+| Key Exchange   | X25519              | PyNaCl         |
+| Encryption     | ChaCha20-Poly1305   | PyNaCl         |
+| Hashing        | SHA-256             | hashlib        |
+| Encoding       | Base58 / Base64     | Python stdlib  |
+
+# 🛡️ Disclaimer
+
+GhostPay is an educational prototype, not a financial product.
+Do NOT use it for real transactions or sensitive data.
+The project aims to explore privacy-enhancing cryptography concepts.
+
+# 🧑‍💻 Author
+
+Wanbogang Labs
+Cyberpunk sandbox for next-generation privacy systems.
+GitHub: https://github.com/Wanbogang
 
 
-Run the automatic demo (sender → receiver decrypt):
-
-python src/auto_demo.py
-
-
-Output will show:
-
-Recipient view_private / view_public (demo)
-
-ephemeral_pub and cipher_b64 (encrypted memo)
-
-one-time public and one-time private (derived claim key)
-
-Decrypted memo.
-
-Manual alternative:
-
-Run python src/sender_example.py — copy view_private, ephemeral_pub::cipher_b64.
-
-Edit src/receiver_example.py and paste values into placeholders.
-
-Run python src/receiver_example.py to see decryption.
-
-Technical overview
-
-Key model: each user has a view key (X25519).
-
-Stealth derivation: sender generates ephemeral X25519 → DH(ephemeral_priv, view_pub) = shared secret → derive seed → create ed25519 one-time keypair.
-
-Memo encryption: shared secret → KDF (SHA256) → symmetric key → SecretBox (XSalsa20-Poly1305) used to encrypt memo.
-
-Claiming: the recipient who holds view_priv can compute shared secret from ephemeral included in memo, then derive the one-time private key to import/claim funds.
-
-Limitations & security notes
-
-On-chain amounts remain visible — this MVP does not hide transaction amounts.
-
-Metadata leakage: memos placed on-chain can be observed; consider encrypted pointers to off-chain storage (IPFS) for improved privacy.
-
-View key compromise: if view_priv leaks, an attacker can discover receipts (view-only). Do not publish private keys.
-
-Private key handling: keep private keys safe and never commit them into the repository.
-
-Roadmap (next steps)
-
-Integrate Solana/DAWN devnet: convert one-time key → Solana keypair JSON & automate transfers.
-
-Build a minimal indexer/inbox (RPC poller) for memos in EPH::CIPHER format.
-
-Create a simple demo UI (Streamlit or React).
-
-Add batching/coinjoin and zk-amounts to obscure amounts.
-
-Submission artifacts
-
-Repo: https://github.com/Wanbogang/ghostpay
-
-Demo video (2–3 min): show generate key → send → decrypt → claim.
-
-Slides: architecture, threat model, demo screenshots, roadmap.
-
-Short security note: describe privacy limitations.
-
-License
-
-MIT — add LICENSE file if needed.
-
-Author / Contact
-
-Wanbogang — GitHub: https://github.com/Wanbogang
 
