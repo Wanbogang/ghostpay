@@ -1,3 +1,5 @@
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 # 🕶️ GhostPay — Private P2P Payments (Stealth Addresses & Encrypted Memos)
 
 **GhostPay** is a cyberpunk-inspired prototype for private peer-to-peer payments, built with Python.  
